@@ -1,0 +1,26 @@
+{
+  "name": "tsibot",
+  "version": "1.0.0",
+  "description": "A Discord bot for The Shadow Isles",
+  "main": "tsibot.js",
+  "scripts": {
+    "test": "tsi"
+  },
+  "keywords": [
+    "tsi",
+    "lol",
+    "riot",
+    "discordjs",
+    "discord",
+    "leagueoflegends",
+    "riotapi",
+    "js"
+  ],
+  "author": "Row",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "moment": "^2.24.0",
+    "teemojs": "^1.3.2"
+  }
+}
