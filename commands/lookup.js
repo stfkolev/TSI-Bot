@@ -17,6 +17,26 @@ module.exports = {
         } else if(args.length <= 2) {
             return message.channel.send(`Please provide me region and summoner name, ${message.author}!\nYou can use this template: \`!lookup eune 3v3 Row\`` );
         }
+        
+        let region = '';
+
+        switch(args[0]) {
+            case 'eune':
+                region = 'eun1';
+            break;
+
+            case 'na':
+                region = 'na1';
+            break;
+
+            case 'euw':
+                region = 'euw1';
+            break;
+
+            default:
+                message.channel.send(`The ${args[0]} region is not supported for now!`);
+                break;
+        }
 
         switch(args[1]) {
             case 'solo':
@@ -38,27 +58,7 @@ module.exports = {
                 message.channel.send(`The ${args[2]} is not a queue!`);
                 break;
         }
-
-        let region = '';
-
-        switch(args[0]) {
-            case 'eune':
-                region = 'eun1';
-            break;
-
-            case 'na':
-                region = 'na1';
-            break;
-
-            case 'euw':
-                region = 'euw1';
-            break;
-
-            default:
-                message.channel.send(`The ${args[0]} region is not supported for now!`);
-                break;
-        }
-
+        
         let summonerName = args.slice(2).join(' ');
 
         let summonerId = api.get(region, 'summoner.getBySummonerName', summonerName);
@@ -68,16 +68,28 @@ module.exports = {
             api.get(region, 'league.getLeagueEntriesForSummoner', data.id)
                 .then(accountData => {
 
+                    let found = false;
+
                     for(let index = 0; index < accountData.length; index++) {
-                        if(!accountData[index]) {
-                            message.channel.send(`\`I have no information about that queue, sorry!\``);
-                        } else {
+                        if(accountData[index].queueType == queue)
+                            found = true;
+                    }
+
+                    if(!found) {
+                        message.channel.send(`\`I have no information about that queue, sorry!\``);
+                    } else {    
+                        for(let index = 0; index < accountData.length; index++) {
+                            console.log(accountData[index]);
                             if(accountData[index].queueType == queue) {
-                                console.log(accountData[index]);
-    
+
+                                // if(accountData[index] == null) {
+                                //     message.channel.send(`\`I have no information about that queue, sorry!\``);
+                                //     break;
+                                // }
+
                                 let description = '';
                                 let summonerRank = '';
-    
+
                                 /*! Convert Ranking for image */
                                 let rank = rankNumber => {
                                     switch(rankNumber) {
@@ -96,45 +108,45 @@ module.exports = {
                                     accountData[index].tier = 'Unranked';
                                     accountData[index].rank = '';
                                     accountData[index].leaguePoints = '';
-    
+
                                     description = `Currently ${accountData[index].tier}`
                                     summonerRank = `https://opgg-static.akamaized.net/images/medals/${accountData[index].tier.toLowerCase()}.png`;
                                 } else {
                                     description = `Currently ${accountData[index].tier} ${accountData[index].rank} on ${accountData[index].leaguePoints} points`;
                                     summonerRank = `https://opgg-static.akamaized.net/images/medals/${accountData[index].tier.toLowerCase()}_${rank(accountData[index].rank)}.png`;
                                 }
-    
+
                                 /*! Create panel for summoner info */
                                 let summonerInfo = new RichEmbed()
-    
+
                                 .setColor('#0099ff')
                                 .setTitle(`Summoner info about ${data.name}`)
                                 
                                 .setAuthor(data.name, 'http://ddragon.leagueoflegends.com/cdn/9.12.1/img/profileicon/'+ data.profileIconId +'.png')
                                 .setDescription(description)
                                 .setThumbnail('http://ddragon.leagueoflegends.com/cdn/9.12.1/img/profileicon/'+ data.profileIconId +'.png')
-    
+
                                 .addBlankField()
-    
+
                                 .addField('Summoner Name ', data.name, true)
                                 .addField('Division ', accountData[index].tier + ' ' + accountData[index].rank + ' ~ ' + accountData[index].leaguePoints + ' LP' ,true)
                                 .setImage(summonerRank)
-    
+
                                 .addBlankField()
-    
+
                                 .addField('Veteran ', accountData[index].veteran ? 'Yes' : 'No', true)
                                 .addField('Inactive ', accountData[index].inactive ? 'Yes' : 'No', true)
                                 .addField('Hot Streak ', accountData[index].hotStreak ? 'Yes' : 'No', true)
                                 .addField('Fresh Blood ', accountData[index].freshBlood ? 'Yes' : 'No', true)
-    
+
                                 .addBlankField()
-    
+
                                 .addField('Wins ', accountData[index].wins, true)
                                 .addField('Losses ', accountData[index].losses, true)
-    
+
                                 .setTimestamp()
                                 .setFooter('Generated by The Shadow Isles Bot');
-    
+
                                 message.channel.send(summonerInfo);
                             }
                         }
