@@ -88,12 +88,10 @@ module.exports = {
 
                 var bannedChamps = [];
 
-                console.log(data.bannedChampions);
-
                 for(let banned in data.bannedChampions) {
                     for(let champion in championsJson.data) {
                         
-                        if(championsJson.data[champion].key == banned.championId) {
+                        if(championsJson.data[champion].key == data.bannedChampions[banned].championId) {
                             bannedChamps.push(new MessageEmbed().setTitle(`${championsJson.data[champion].name}`).setImage(`http://ddragon.leagueoflegends.com/cdn/6.24.1/img/champion/${championsJson.data[champion].image.full}`))
                         }
                     }
