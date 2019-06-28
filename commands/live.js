@@ -92,7 +92,7 @@ module.exports = {
                     for(let champion in championsJson.data) {
                         
                         if(championsJson.data[champion].key == data.bannedChampions[banned].championId) {
-                            bannedChamps.push(new MessageEmbed().setTitle(`${championsJson.data[champion].name}`).setImage(`http://ddragon.leagueoflegends.com/cdn/6.24.1/img/champion/${championsJson.data[champion].image.full}`))
+                            bannedChamps.push(new RichEmbed().setTitle(`${championsJson.data[champion].name}`).setImage(`http://ddragon.leagueoflegends.com/cdn/6.24.1/img/champion/${championsJson.data[champion].image.full}`))
                         }
                     }
                 }
