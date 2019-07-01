@@ -11,6 +11,7 @@ module.exports = {
     
     execute(message, args) {
         var queue = '';
+        let queueId = null;
 
         if(!args.length) {
             return message.channel.send(`You didn't provide any arguments, ${message.author}!`);
@@ -22,16 +23,48 @@ module.exports = {
 
         switch(args[0]) {
             case 'eune':
-                region = 'eun1';
-            break;
-
-            case 'na':
-                region = 'na1';
-            break;
-
-            case 'euw':
-                region = 'euw1';
-            break;
+                    region = 'eun1';
+                break;
+    
+                case 'na':
+                    region = 'na1';
+                break;
+    
+                case 'euw':
+                    region = 'euw1';
+                break;
+    
+                case 'tr':
+                    region = 'tr1';
+                break;
+    
+                case 'kr':
+                    region = 'kr';
+                    break;
+    
+                case 'jp':
+                    region = 'jp1';
+                    break;
+    
+                case 'oce':
+                    region = 'oc1';
+                    break;
+    
+                case 'ru':
+                    region = 'ru';
+                    break;
+    
+                case 'br':
+                    region = 'br1';
+                    break;
+    
+                case 'lan':
+                    region = 'la1';
+                    break;
+    
+                case 'las':
+                    region = 'la2';
+                    break;
 
             default:
                 message.channel.send(`The ${args[0]} region is not supported for now!`);
@@ -42,16 +75,19 @@ module.exports = {
             case 'solo':
             case 'duo':
                 queue = 'RANKED_SOLO_5x5';
+                queueId = 420;
                 break;
 
             case '3s':
             case '3v3':
                 queue = 'RANKED_FLEX_TT';
+                queueId = 470;
                 break;
 
             case '5s':
             case '5v5':
                 queue = 'RANKED_FLEX_SR';
+                queueId = 440;
                 break;
 
             default:
@@ -83,14 +119,8 @@ module.exports = {
                         
                     } else {    
                         for(let index = 0; index < accountData.length; index++) {
-                            console.log(accountData[index]);
+                            
                             if(accountData[index].queueType == queue) {
-
-                                // if(accountData[index] == null) {
-                                //     message.channel.send(`\`I have no information about that queue, sorry!\``);
-                                //     break;
-                                // }
-
                                 let description = '';
                                 let summonerRank = '';
 
@@ -107,6 +137,35 @@ module.exports = {
                                             return 4;
                                     }
                                 };
+
+                                let division = divisionId => {
+                                    switch(divisionId) {
+                                        
+                                        case 'IRON':
+                                            return 0;
+
+                                        case 'BRONZE':
+                                            return 0.4;
+
+                                        case 'SILVER':
+                                            return 0.8;
+
+                                        case 'GOLD':
+                                            return 1.2;
+
+                                        case 'PLATINUM':
+                                            return 1.6;
+
+                                        case 'DIAMOND':
+                                            return 2;
+
+                                        case 'MASTER':
+                                        case 'GRANDMASTER':
+                                        case 'CHALLENGER':
+                                            return 2.4;
+
+                                    }
+                                }
                                 
                                 if(!accountData[index].tier) {
                                     accountData[index].tier = 'Unranked';
@@ -120,39 +179,79 @@ module.exports = {
                                     summonerRank = `https://opgg-static.akamaized.net/images/medals/${accountData[index].tier.toLowerCase()}_${rank(accountData[index].rank)}.png`;
                                 }
 
-                                /*! Create panel for summoner info */
-                                let summonerInfo = new RichEmbed()
+                                /*! MMR Variables */
 
-                                .setColor('#0099ff')
-                                .setTitle(`Summoner info about ${data.name}`)
-                                
-                                .setAuthor(data.name, 'http://ddragon.leagueoflegends.com/cdn/9.12.1/img/profileicon/'+ data.profileIconId +'.png')
-                                .setDescription(description)
-                                .setThumbnail('http://ddragon.leagueoflegends.com/cdn/9.12.1/img/profileicon/'+ data.profileIconId +'.png')
+                                let summonerScore = null;
+                                let wonGames = 0;
 
-                                .addBlankField()
+                                /* END MMR Variables */
 
-                                .addField('Summoner Name ', data.name, true)
-                                .addField('Division ', accountData[index].tier + ' ' + accountData[index].rank + ' ~ ' + accountData[index].leaguePoints + ' LP' ,true)
-                                .setImage(summonerRank)
+                                let matchHistory = api.get(region, 'match.getMatchlist', data.accountId);
 
-                                .addBlankField()
+                                matchHistory.then(async matches => {
+                                   
+                                    for(let match in matches.matches) {
+                                        if(match < 10) {
+                                            api.get(region, 'match.getMatch', matches.matches[match].gameId).then(game => {
+                                                let teamId = null;
+                                                let participantId = null;
 
-                                .addField('Veteran ', accountData[index].veteran ? 'Yes' : 'No', true)
-                                .addField('Inactive ', accountData[index].inactive ? 'Yes' : 'No', true)
-                                .addField('Hot Streak ', accountData[index].hotStreak ? 'Yes' : 'No', true)
-                                .addField('Fresh Blood ', accountData[index].freshBlood ? 'Yes' : 'No', true)
+                                                if(game.queueId == queueId) {
 
-                                .addBlankField()
-                                  
-                                .addField('Wins ', accountData[index].wins, true)
-                                .addField('Losses ', accountData[index].losses, true)
-                                .addField('Winrate ', (accountData[index].wins / (accountData[index].wins + accountData[index].losses) * 100).toFixed(2) + '%', true)
+                                                    for(let participant in game.participantIdentities)
+                                                        if(game.participantIdentities[participant].player.accountId == data.accountId)
+                                                            participantId = game.participantIdentities[participant].participantId;
 
-                                .setTimestamp()
-                                .setFooter('Generated by The Shadow Isles Bot');
+                                                    for(let participant in game.participants)
+                                                        if(game.participants[participant].participantId == participantId)
+                                                            teamId = game.participants[participant].teamId;
 
-                                message.channel.send(summonerInfo);
+                                                    for(let team in game.teams)
+                                                        if(game.teams[team].teamId == teamId && game.teams[team].win == 'Win')
+                                                            wonGames += 1;
+
+                                                    console.log(wonGames);
+                                                }
+                                            });
+                                        }
+                                    }
+
+                                    summonerScore = await parseInt((division(accountData[index].tier) * 1000) + (rank(accountData[index].rank) * 100) +  (wonGames * 10) + (accountData[index].wins / (accountData[index].wins + accountData[index].losses) * 100));
+                                    /*! Create panel for summoner info */
+                                    let summonerInfo =  await new RichEmbed()
+
+                                    .setColor('#0099ff')
+                                    .setTitle(`Summoner info about ${data.name}`)
+                                    
+                                    .setAuthor(data.name, 'http://ddragon.leagueoflegends.com/cdn/9.13.1/img/profileicon/'+ data.profileIconId +'.png')
+                                    .setDescription(description)
+                                    .setThumbnail('http://ddragon.leagueoflegends.com/cdn/9.13.1/img/profileicon/'+ data.profileIconId +'.png')
+
+                                    .addBlankField()
+
+                                    .addField('Summoner Name ', data.name, true)
+                                    .addField('Division ', accountData[index].tier + ' ' + accountData[index].rank + ' ~ ' + accountData[index].leaguePoints + ' LP' ,true)
+                                    .setImage(summonerRank)
+
+                                    .addBlankField()
+
+                                    .addField('Veteran ', accountData[index].veteran ? 'Yes' : 'No', true)
+                                    .addField('Inactive ', accountData[index].inactive ? 'Yes' : 'No', true)
+                                    .addField('Hot Streak ', accountData[index].hotStreak ? 'Yes' : 'No', true)
+                                    .addField('Fresh Blood ', accountData[index].freshBlood ? 'Yes' : 'No', true)
+
+                                    .addBlankField()
+                                        
+                                    .addField('Wins ', accountData[index].wins, true)
+                                    .addField('Losses ', accountData[index].losses, true)
+                                    .addField('Winrate ', (accountData[index].wins / (accountData[index].wins + accountData[index].losses) * 100).toFixed(2) + '%', true)
+                                    .addField('Estimated MMR ', summonerScore, true)
+
+                                    .setTimestamp()
+                                    .setFooter('Generated by The Shadow Isles Bot');
+
+                                    await message.channel.send(summonerInfo);
+                                });
                             }
                         }
                     }

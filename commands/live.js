@@ -31,6 +31,34 @@ module.exports = {
                 region = 'tr1';
             break;
 
+            case 'kr':
+                region = 'kr';
+                break;
+
+            case 'jp':
+                region = 'jp1';
+                break;
+
+            case 'oce':
+                region = 'oc1';
+                break;
+
+            case 'ru':
+                region = 'ru';
+                break;
+
+            case 'br':
+                region = 'br1';
+                break;
+
+            case 'lan':
+                region = 'la1';
+                break;
+
+            case 'las':
+                region = 'la2';
+                break;
+
             default:
                 message.channel.send(`The ${args[0]} region is not supported for now!`);
                 break;
@@ -70,6 +98,10 @@ module.exports = {
                     case 10:
                         mapName = 'Twisted Treeline';
                         break;
+
+                    case 11:
+                        mapName = `Summoner's Rift`;
+                        break;
                 }
 
                 let mapInfo = new RichEmbed()
@@ -88,7 +120,10 @@ module.exports = {
 
                 var bannedChamps = [];
 
+                
                 for(let banned in data.bannedChampions) {
+                    console.log(data.bannedChampions[banned])
+
                     for(let champion in championsJson.data) {
                         
                         if(championsJson.data[champion].key == data.bannedChampions[banned].championId) {
