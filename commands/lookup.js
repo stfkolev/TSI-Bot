@@ -209,14 +209,22 @@ module.exports = {
                                                     for(let team in game.teams)
                                                         if(game.teams[team].teamId == teamId && game.teams[team].win == 'Win')
                                                             wonGames += 1;
-
-                                                    console.log(wonGames);
                                                 }
                                             });
                                         }
                                     }
-
-                                    summonerScore = await parseInt((division(accountData[index].tier) * 1000) + (rank(accountData[index].rank) * 100) +  (wonGames * 10) + (accountData[index].wins / (accountData[index].wins + accountData[index].losses) * 100));
+                                    
+                                    /*! Calcualte Summoner Score - Similar to MMR */
+                                    summonerScore = await parseInt(
+                                        (division(accountData[index].tier) * 1000) + 
+                                        (rank(accountData[index].rank) * 100) + 
+                                        (wonGames * 10) + 
+                                        (accountData[index].wins / (
+                                            accountData[index].wins + 
+                                            accountData[index].losses
+                                        ) * 100) + 
+                                        (accountData[index].leaguePoints / 1.2)
+                                    );
                                     /*! Create panel for summoner info */
                                     let summonerInfo =  await new RichEmbed()
 
