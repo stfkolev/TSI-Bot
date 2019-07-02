@@ -8,7 +8,7 @@ module.exports = {
     name: 'tp',
     description: 'Third-party code test',
     
-    execute(message, args) {
+    async execute(message, args) {
         let region = '';
 
         switch(args[0]) {
@@ -33,18 +33,31 @@ module.exports = {
                 break;
         }
 
-        console.log(args);
-        let summonerName = args.slice(1).join(' ');
+        //
+        let bannedChamps = [];
 
-        let summonerInfo = api.get(region, 'summoner.getBySummonerName', summonerName);
-        
-        summonerInfo.then(data => {
-            console.log(data);
-            
-            let thirdPartyKey = api.get(region, 'thirdPartyCode.getThirdPartyCodeBySummonerId', data.id);
-            thirdPartyKey.then(keyData => {
-                console.log(keyData);
-            });
-        });
+        bannedChamps.push(
+            {
+                name: `Aatrox`,
+                image: `http://ddragon.leagueoflegends.com/cdn/9.13.1/img/champion/Aatrox.png`,
+            },
+            {
+                name: `Lucian`,
+                image: `http://ddragon.leagueoflegends.com/cdn/9.13.1/img/champion/Lucian.png`,
+            },
+            {
+                name: `Zed`,
+                image: `http://ddragon.leagueoflegends.com/cdn/9.13.1/img/champion/Zed.png`,
+            },
+        );
+
+        message.channel.send('***Banned Champions***');
+
+        for(let champion in bannedChamps) {
+            message.channel.send(new RichEmbed()
+                .setTitle(bannedChamps[champion].name)
+                .setImage(bannedChamps[champion].image)
+            );
+        }
     }
 }
